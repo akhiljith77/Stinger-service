@@ -42,3 +42,14 @@ export class UpdateUserDto{
     
 }
 
+export class forgotPasswordDto{
+
+    @IsEmail()
+    email:string
+}
+
+export class resetPasswordDto{
+
+    @IsString()
+    password:string
+}

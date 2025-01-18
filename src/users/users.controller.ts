@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
+import { CreateUserDto, forgotPasswordDto, LoginUserDto, resetPasswordDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
@@ -27,6 +27,15 @@ export class UsersController {
     return this.usersService.deleteUser(UserId)
   }
 
+  @Post('forgot-password')
+    forgotPassword(@Body() email:forgotPasswordDto){
+      return this.usersService.forgotPassword(email)
+    }
+
+  @Patch('reset-password/:token')
+  resetPassword(@Body() password:resetPasswordDto,@Param('token') token:string){
+    return this.usersService.resetPassword(token,password)
+  }
 
 
 }
