@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, isString, IsString, MaxLength, MinLength } from "class-validator";
 import { EphemeralKeyInfo } from "tls";
 
 export class CreateUserDto {
@@ -24,3 +24,21 @@ export class LoginUserDto{
     @IsString()
     password:string
 }
+export class UpdateUserDto{
+
+    
+    @IsEmail()
+    @IsOptional()
+    email:string
+     
+    @IsString()
+    @IsOptional()
+    name:string
+
+    @IsNumber()
+    @IsOptional()
+    number:number
+
+    
+}
+

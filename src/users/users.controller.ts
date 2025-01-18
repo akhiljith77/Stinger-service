@@ -17,5 +17,16 @@ export class UsersController {
     return this.usersService.login(loginUserDto)
   }
 
+  @Patch(":Id")
+  update(@Body() updateUserDto:UpdateUserDto,@Param("Id") UserId:string){
+    return this.usersService.update(updateUserDto,UserId)
+  }
+
+  @Delete(":Id")
+  delete(@Param("Id") UserId:string){
+    return this.usersService.deleteUser(UserId)
+  }
+
+
 
 }
