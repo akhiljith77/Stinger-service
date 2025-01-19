@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,16 +13,24 @@ import { MoreThan, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordToken } from 'src/password-token/entities/password-token.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class UsersService {
+  private readonly userCacheKey = 'user-list';
   constructor(
     @InjectRepository(User)
     private readonly dbConnection: Repository<User>,
     @InjectRepository(PasswordToken)
     private tokenRepository: Repository<PasswordToken>,
+
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+
     private jwtService: JwtService,
+    
   ) { }
+
   async register(userdata: CreateUserDto): Promise<string> {
     try {
       const userExist = await this.dbConnection.findOne({
@@ -83,6 +92,25 @@ export class UsersService {
       this.dbConnection.save(userData);
       return 'User update Successful';
     } catch (error) { }
+  }
+
+  async getUsers(){
+    try {
+      const cachedUsers = await this.cacheManager.get(this.userCacheKey)
+      if (cachedUsers) {
+        console.log('Returning cached orders');
+        return cachedUsers;
+      }
+      console.log('Fetching orders from database');
+      const users = await this.dbConnection.find();
+      if(!users){ 
+        return new HttpException('no records found', HttpStatus.NOT_FOUND)
+      }
+      await this.cacheManager.set(this.userCacheKey, users)
+      return users
+    } catch (error) {
+      
+    }
   }
   async deleteUser(UserId: string) {
     try {

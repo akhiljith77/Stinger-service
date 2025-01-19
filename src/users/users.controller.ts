@@ -22,6 +22,11 @@ export class UsersController {
     return this.usersService.update(updateUserDto,UserId)
   }
 
+  @Get()
+  getUsers(){
+    return this.usersService.getUsers()
+  }
+
   @Delete(":Id")
   delete(@Param("Id") UserId:string){
     return this.usersService.deleteUser(UserId)
