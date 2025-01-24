@@ -30,7 +30,7 @@ export class UsersService {
       });
 
       if (userExist) {
-        throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+        throw new UnauthorizedException('User already exist' );
       }
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(userdata.password, salt);
@@ -41,7 +41,7 @@ export class UsersService {
       this.userConnection.save(newUser);
       return 'user registered successfully';
     } catch (error) {
-      console.log(error);
+      throw error
     }
   }
   async login(loginDto: LoginUserDto) {
@@ -65,7 +65,9 @@ export class UsersService {
       const expireTime:string= "7d"
       const token:string = this.generateToken(userExist,expireTime);
       return token;
-    } catch (error) {}
+    } catch (error) {
+      throw error
+    }
   }
   private generateToken(user: User,expiresIn:string) {
     const payload: object = {
@@ -91,7 +93,9 @@ export class UsersService {
       Object.assign(userData, updateUserDto);
       this.userConnection.save(userData);
       return 'User update Successful';
-    } catch (error) {}
+    } catch (error) {
+      throw error
+    }
   }
   async deleteUser(UserId: string) {
     try {
@@ -104,7 +108,7 @@ export class UsersService {
       this.userConnection.delete(UserId);
       return "User Deleted Successfully"
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
   async forgetPassword(emailDto:ForgetPassword){
@@ -126,7 +130,7 @@ export class UsersService {
        return link;
 
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -152,7 +156,8 @@ export class UsersService {
       await this.tokenConnection.save(tokenExist)
       return {message:'password Reset Successfully'}
     } catch (error) {
-      console.log(error)
+      throw error
     }
   }
 }
+ 
