@@ -5,7 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto, forgotPasswordDto, LoginUserDto, resetPasswordDto } from './dto/create-user.dto';
+import { CreateUserDto, ForgetPassword, LoginUserDto, ResetPassword } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -21,19 +21,19 @@ export class UsersService {
   private readonly userCacheKey = 'user-list';
   constructor(
     @InjectRepository(User)
-    private readonly dbConnection: Repository<User>,
+    private readonly userConnection: Repository<User>,
     @InjectRepository(PasswordToken)
     private tokenRepository: Repository<PasswordToken>,
 
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
 
     private jwtService: JwtService,
-    
+
   ) { }
 
   async register(userdata: CreateUserDto): Promise<string> {
     try {
-      const userExist = await this.dbConnection.findOne({
+      const userExist = await this.userConnection.findOne({
         where: { email: userdata.email },
       });
 
@@ -42,20 +42,21 @@ export class UsersService {
       }
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(userdata.password, salt);
-      const newUser = this.dbConnection.create({
+      const newUser = this.userConnection.create({
         ...userdata,
         password: hashedPassword,
       });
-      this.dbConnection.save(newUser);
+      this.userConnection.save(newUser);
       return 'user registered successfully';
     } catch (error) {
-      console.log(error);
+      throw error
     }
   }
   async login(loginDto: LoginUserDto) {
     try {
-      const userExist = await this.dbConnection.findOne({
+      const userExist = await this.userConnection.findOne({
         where: { email: loginDto.email },
+
       });
 
       if (!userExist) {
@@ -75,13 +76,16 @@ export class UsersService {
         message: 'User login Successfully',
         token: token
       };
-    } catch (error) { }
+    } catch (error) {
+      throw error
+
+    }
   }
 
 
   async update(updateUserDto: UpdateUserDto, UserId: string) {
     try {
-      const userData = await this.dbConnection.findOne({
+      const userData = await this.userConnection.findOne({
         where: { id: UserId },
       });
 
@@ -89,12 +93,15 @@ export class UsersService {
         return new UnauthorizedException('Invalid credentials');
       }
       Object.assign(userData, updateUserDto);
-      this.dbConnection.save(userData);
+      this.userConnection.save(userData);
       return 'User update Successful';
-    } catch (error) { }
+    } catch (error) {
+      throw error
+
+    }
   }
 
-  async getUsers(){
+  async getUsers() {
     try {
       const cachedUsers = await this.cacheManager.get(this.userCacheKey)
       if (cachedUsers) {
@@ -102,32 +109,36 @@ export class UsersService {
         return cachedUsers;
       }
       console.log('Fetching orders from database');
-      const users = await this.dbConnection.find();
-      if(!users){ 
+      const users = await this.userConnection.find();
+      if (!users) {
         return new HttpException('no records found', HttpStatus.NOT_FOUND)
       }
       await this.cacheManager.set(this.userCacheKey, users)
       return users
     } catch (error) {
-      
+      throw error
+
     }
   }
   async deleteUser(UserId: string) {
     try {
-      const userData = await this.dbConnection.findOne({
+      const userData = await this.userConnection.findOne({
         where: { id: UserId }
       })
       if (!userData) {
         return new UnauthorizedException("User Dosn't exist");
       }
-      this.dbConnection.delete(UserId);
+      this.userConnection.delete(UserId);
       return "User Deleted Successfully"
-    } catch (error) { }
+    } catch (error) {
+      throw error
+
+    }
   }
 
-  async forgotPassword(forgotPasswordDto: forgotPasswordDto) {
+  async forgotPassword(forgotPasswordDto: ForgetPassword) {
     try {
-      const userExist = await this.dbConnection.findOne({ where: { email: forgotPasswordDto.email } })
+      const userExist = await this.userConnection.findOne({ where: { email: forgotPasswordDto.email } })
       if (!userExist) {
         return new UnauthorizedException('Invalid credentials')
       }
@@ -148,22 +159,23 @@ export class UsersService {
         link: resetPasswordLink
       };
     } catch (error) {
-      console.log(error);
+      throw error
+
 
     }
   }
 
-  async resetPassword(token: string, passwordDto: resetPasswordDto) {
-    try {      
-      const payload = this.jwtService.verify(token);     
+  async resetPassword(passwordDto: ResetPassword, token: string,) {
+    try {
+      const payload = this.jwtService.verify(token);
 
       const passwordReset = await this.tokenRepository.findOne({ where: { token, isUsed: false, expiresAt: MoreThan(new Date) } })
-      
+
       if (!passwordReset) {
         throw new UnauthorizedException('Invalid token or expired token');
       }
 
-      const userExist = await this.dbConnection.findOne({ where: { id: payload.id } })
+      const userExist = await this.userConnection.findOne({ where: { id: payload.id } })
 
       if (!userExist) {
         throw new UnauthorizedException('User doesnt exist');
@@ -171,19 +183,19 @@ export class UsersService {
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(passwordDto.password, salt);
-      
+
       userExist.password = hashedPassword;
-      await this.dbConnection.save(userExist);
+      await this.userConnection.save(userExist);
 
       passwordReset.isUsed = true;
       await this.tokenRepository.save(passwordReset)
-      
+
       return { message: 'Password successfully reset' };
 
     } catch (error) {
-      throw new UnauthorizedException(error);
-      // console.log(error);
-      
+      throw error
+
+
     }
 
   }

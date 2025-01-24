@@ -1,55 +1,53 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, isString, IsString, MaxLength, MinLength } from "class-validator";
-import { EphemeralKeyInfo } from "tls";
+import {
+  isEmail,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  isString,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { EphemeralKeyInfo } from 'tls';
 
 export class CreateUserDto {
+  @IsString()
+  name: string;
 
-    @IsString()
-    name:string
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
-    @IsEmail()
-    @IsNotEmpty()
-    email:string
-
-    @IsString()
-    @MinLength(8)
-    password:string
-
-
+  @IsString()
+  @MinLength(8)
+  password: string;
 }
-export class LoginUserDto{
+export class LoginUserDto {
+  @IsEmail()
+  email: string;
 
-    @IsEmail()
-    email:string
-
-    @IsString()
-    password:string
+  @IsString()
+  password: string;
 }
-export class UpdateUserDto{
+export class UpdateUserDto {
+  @IsEmail()
+  @IsOptional()
+  email: string;
 
-    
-    @IsEmail()
-    @IsOptional()
-    email:string
-     
-    @IsString()
-    @IsOptional()
-    name:string
+  @IsString()
+  @IsOptional()
+  name: string;
 
-    @IsNumber()
-    @IsOptional()
-    number:number
-
-    
+  @IsNumber()
+  @IsOptional()
+  number: number;
 }
-
-export class forgotPasswordDto{
-
-    @IsEmail()
-    email:string
+export class ForgetPassword {
+  @IsEmail()
+  email: string;
 }
-
-export class resetPasswordDto{
-
-    @IsString()
-    password:string
+export class ResetPassword {
+  @IsString()
+  password: string;
 }

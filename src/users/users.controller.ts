@@ -1,6 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, forgotPasswordDto, LoginUserDto, resetPasswordDto } from './dto/create-user.dto';
+import {
+  CreateUserDto,
+  ForgetPassword,
+  LoginUserDto,
+  ResetPassword,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
@@ -12,35 +25,31 @@ export class UsersController {
     return this.usersService.register(createUserDto);
   }
 
-  @Post("login")
-  login(@Body() loginUserDto:LoginUserDto){
-    return this.usersService.login(loginUserDto)
+  @Post('login')
+  login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.login(loginUserDto);
   }
 
-  @Patch(":Id")
-  update(@Body() updateUserDto:UpdateUserDto,@Param("Id") UserId:string){
-    return this.usersService.update(updateUserDto,UserId)
+  @Patch(':Id')
+  update(@Body() updateUserDto: UpdateUserDto, @Param('Id') UserId: string) {
+    return this.usersService.update(updateUserDto, UserId);
   }
 
-  @Get()
-  getUsers(){
-    return this.usersService.getUsers()
+  @Delete(':Id')
+  delete(@Param('Id') UserId: string) {
+    return this.usersService.deleteUser(UserId);
   }
-
-  @Delete(":Id")
-  delete(@Param("Id") UserId:string){
-    return this.usersService.deleteUser(UserId)
+  @Post('forget-password')
+  forgetPassword(@Body() ForgetPassword: ForgetPassword) {
+    return this.usersService.forgotPassword(ForgetPassword);
   }
-
-  @Post('forgot-password')
-    forgotPassword(@Body() email:forgotPasswordDto){
-      return this.usersService.forgotPassword(email)
-    }
 
   @Patch('reset-password/:token')
-  resetPassword(@Body() password:resetPasswordDto,@Param('token') token:string){
-    return this.usersService.resetPassword(token,password)
+  resetPassword(
+    @Body() resetPasswordDto: ResetPassword,
+    @Param('token') token: string,
+  ) {
+    console.log(resetPasswordDto, token,"in controller");
+    return this.usersService.resetPassword(resetPasswordDto, token);
   }
-
-
 }
