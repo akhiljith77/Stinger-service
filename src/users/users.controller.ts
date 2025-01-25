@@ -41,7 +41,7 @@ export class UsersController {
   }
   @Post('forget-password')
   forgetPassword(@Body() ForgetPassword: ForgetPassword) {
-    return this.usersService.forgetPassword(ForgetPassword);
+    return this.usersService.forgotPassword(ForgetPassword);
   }
 
   @Patch('reset-password/:token')

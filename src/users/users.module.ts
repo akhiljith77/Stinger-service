@@ -6,13 +6,14 @@ import { User } from './entities/user.entity';
 
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { PasswordToken } from 'src/password-token/entities/password-token.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Passwordtoken } from 'src/passwordtoken/entities/passwordtoken.entity';
-
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,Passwordtoken]),
+    TypeOrmModule.forFeature([User,PasswordToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -21,7 +22,12 @@ import { Passwordtoken } from 'src/passwordtoken/entities/passwordtoken.entity';
       }),
       inject: [ConfigService],
     }),
-   
+    CacheModule.register({
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+      isGlobal: true, // Makes cache globally available
+    }),
   ],
   controllers: [UsersController],
   providers: [UsersService],

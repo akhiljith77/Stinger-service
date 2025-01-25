@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -11,18 +12,25 @@ import { User } from './entities/user.entity';
 import { MoreThan, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { log } from 'console';
-import { Passwordtoken } from 'src/passwordtoken/entities/passwordtoken.entity';
+import { PasswordToken } from 'src/password-token/entities/password-token.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class UsersService {
+  private readonly userCacheKey = 'user-list';
   constructor(
     @InjectRepository(User)
     private readonly userConnection: Repository<User>,
-    @InjectRepository(Passwordtoken)
-    private readonly tokenConnection:Repository<Passwordtoken>,
+    @InjectRepository(PasswordToken)
+    private tokenRepository: Repository<PasswordToken>,
+
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+
     private jwtService: JwtService,
-  ) {}
+
+  ) { }
+
   async register(userdata: CreateUserDto): Promise<string> {
     try {
       const userExist = await this.userConnection.findOne({
@@ -62,24 +70,18 @@ export class UsersService {
       if (!isPasswordMatch) {
         return new UnauthorizedException('Invalid credentials');
       }
-      const expireTime:string= "7d"
-      const token:string = this.generateToken(userExist,expireTime);
-      return token;
+      const expireIn = '7d'
+      const token = this.generateToken(userExist, expireIn);
+      return {
+        message: 'User login Successfully',
+        token: token
+      };
     } catch (error) {
       throw error
+
     }
   }
-  private generateToken(user: User,expiresIn:string) {
-    const payload: object = {
-      id: user?.id,
-      email: user?.email,
-    };
 
-    return this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET || 'MY_SECRET_KEY',
-      expiresIn: expiresIn,
-    });
-  }
 
   async update(updateUserDto: UpdateUserDto, UserId: string) {
     try {
@@ -95,12 +97,33 @@ export class UsersService {
       return 'User update Successful';
     } catch (error) {
       throw error
+
+    }
+  }
+
+  async getUsers() {
+    try {
+      const cachedUsers = await this.cacheManager.get(this.userCacheKey)
+      if (cachedUsers) {
+        console.log('Returning cached orders');
+        return cachedUsers;
+      }
+      console.log('Fetching orders from database');
+      const users = await this.userConnection.find();
+      if (!users) {
+        return new HttpException('no records found', HttpStatus.NOT_FOUND)
+      }
+      await this.cacheManager.set(this.userCacheKey, users)
+      return users
+    } catch (error) {
+      throw error
+
     }
   }
   async deleteUser(UserId: string) {
     try {
       const userData = await this.userConnection.findOne({
-        where:{id:UserId}
+        where: { id: UserId }
       })
       if (!userData) {
         return new UnauthorizedException("User Dosn't exist");
@@ -108,56 +131,90 @@ export class UsersService {
       this.userConnection.delete(UserId);
       return "User Deleted Successfully"
     } catch (error) {
-      throw error;
+      throw error
+
     }
   }
-  async forgetPassword(emailDto:ForgetPassword){
+
+  async forgotPassword(forgotPasswordDto: ForgetPassword) {
     try {
-      const isEmail = await this.userConnection.findOne(
-        {where:{email:emailDto.email}}
-      )
-      if(!isEmail){
-        return new UnauthorizedException("User Dosn't exist");
+      const userExist = await this.userConnection.findOne({ where: { email: forgotPasswordDto.email } })
+      if (!userExist) {
+        return new UnauthorizedException('Invalid credentials')
       }
-      const expireTime ="10m"
-       const token = this.generateToken(isEmail,expireTime)
-       const passwordReset = new Passwordtoken();
-       passwordReset.userId = isEmail.id;
-       passwordReset.token = token;
-       passwordReset.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-       await this.tokenConnection.save(passwordReset)
-       const link = `http://localhost:3000/reset-password/${token}`
-       return link;
 
-    } catch (error) {
-      throw error;
-    }
-  }
+      const expireIn: string = '30m'
+      const resetToken = this.generateToken(userExist, expireIn)
 
-  async resetPassword(resetPassworddto:ResetPassword,token:string){
-    try {
-     const payload=this.jwtService.verify(token)
-     // console.log(resetPassworddto.password,token)
+      const passwordReset = new PasswordToken();
+      passwordReset.userId = userExist.id;
+      passwordReset.token = resetToken;
+      passwordReset.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      await this.tokenRepository.save(passwordReset)
 
-     const tokenExist=await this.tokenConnection.findOne({
-      where:{token:token,isUsed:false,expiresAt:MoreThan(new Date)}
-     })
-    if(!tokenExist){
-      return new UnauthorizedException("invalid token or token expired");
-    }
-     const userToChangePassword= await this.userConnection.findOne({
-      where:{id:payload.id}
-     })
-     const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(resetPassworddto.password, salt);
-      userToChangePassword.password=hashedPassword
-      await this.userConnection.save(userToChangePassword);
-      tokenExist.isUsed=true;
-      await this.tokenConnection.save(tokenExist)
-      return {message:'password Reset Successfully'}
+      const resetPasswordLink = `http://localhost:5173/reset-password/${resetToken}`
+
+      return {
+        message: 'Password reset link sent to email',
+        link: resetPasswordLink
+      };
     } catch (error) {
       throw error
+
+
     }
   }
+
+  async resetPassword(passwordDto: ResetPassword, token: string,) {
+    try {
+      const payload = this.jwtService.verify(token);
+
+      const passwordReset = await this.tokenRepository.findOne({ where: { token, isUsed: false, expiresAt: MoreThan(new Date) } })
+
+      if (!passwordReset) {
+        throw new UnauthorizedException('Invalid token or expired token');
+      }
+
+      const userExist = await this.userConnection.findOne({ where: { id: payload.id } })
+
+      if (!userExist) {
+        throw new UnauthorizedException('User doesnt exist');
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(passwordDto.password, salt);
+
+      userExist.password = hashedPassword;
+      await this.userConnection.save(userExist);
+
+      passwordReset.isUsed = true;
+      await this.tokenRepository.save(passwordReset)
+
+      return { message: 'Password successfully reset' };
+
+    } catch (error) {
+      throw error
+
+
+    }
+
+  }
+
+  private generateToken(user: User, expireIn: string) {
+    const payload: object = {
+      id: user?.id,
+      email: user?.email,
+    };
+
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET || 'MY_SECRET_KEY',
+      expiresIn: expireIn
+    });
+  }
+
+  private verifyToken(token: string) {
+    return this.jwtService.verify(token)
+  }
 }
- 
+
+
