@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PasswordTokenModule } from './password-token/password-token.module';
 import { PasswordToken } from './password-token/entities/password-token.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { EmailServiceModule } from './email-service/email-service.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     UsersModule,
     PasswordTokenModule,
+    EmailServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
