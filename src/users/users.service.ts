@@ -38,7 +38,7 @@ export class UsersService {
       });
 
       if (userExist) {
-        throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+        throw new UnauthorizedException('User already exist' );
       }
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(userdata.password, salt);
@@ -152,7 +152,7 @@ export class UsersService {
       passwordReset.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await this.tokenRepository.save(passwordReset)
 
-      const resetPasswordLink = `http://localhost:3000/reset-password/${resetToken}`
+      const resetPasswordLink = `http://localhost:5173/reset-password/${resetToken}`
 
       return {
         message: 'Password reset link sent to email',
