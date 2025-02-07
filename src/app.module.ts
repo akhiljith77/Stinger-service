@@ -9,6 +9,9 @@ import { PasswordTokenModule } from './password-token/password-token.module';
 import { PasswordToken } from './password-token/entities/password-token.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { EmailServiceModule } from './email-service/email-service.module';
+import { ProductsModule } from './products/products.module';
+import { Products } from './products/entities/product.entity';
+
 
 @Module({
   imports: [
@@ -30,13 +33,14 @@ import { EmailServiceModule } from './email-service/email-service.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DATABASE'),
-        entities: [User,PasswordToken],
+        entities: [User,PasswordToken,Products],
         synchronize: true,
       }),
     }),
     UsersModule,
     PasswordTokenModule,
     EmailServiceModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
