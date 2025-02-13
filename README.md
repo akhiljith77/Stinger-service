@@ -1,99 +1,297 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+<h1 align="center">
+    <img src="https://www.logotypes101.com/logos/3/0DA971A6042F6233DB0E8F41F58E9C4A/Stinger.png" width="auto" height="180" />
+  <br/>
+ Ecommerce Application
+</h1>
+
+<h2>📌 Description</h2>
+<p>
+  The Stinger is our new product. It is an ecommerce platform where you can buy cloths, shoes and other accessories. Stinger is under construction ⚒
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<h2>🛠️ Technologies Used</h2>
+<ul>
+  <li> 
+     <img src="https://github.com/devicons/devicon/blob/master/icons/nestjs/nestjs-original.svg" title="nestjs" alt="nestjs " width="15" height="15"/>
+    <strong>NestJS:</strong> Backend framework for building scalable applications.
+  </li>
+  <li>
+     <img src="https://github.com/devicons/devicon/blob/master/icons/react/react-original.svg" title="react" alt="react" width="15" height="15"/>
+    <strong>React:</strong> A Javascript library to create UI.
+  </li>
+  <li>
+     <img src="https://github.com/devicons/devicon/blob/master/icons/postgresql/postgresql-original.svg" title="postgresql" alt="postgresql" width="15" height="15"/>
+    <strong>PostgreSQL:</strong> An SQL database.
+  </li>
+  <li>
+     <img src="https://github.com/devicons/devicon/blob/master/icons/redis/redis-original.svg" title="redis" alt="redis" width="15" height="15"/>
+    <strong>Redis:</strong> An open-source, in-memory data store that can be used as a cache, database.
+  </li>
+  <li>
+   <img src="https://github.com/devicons/devicon/blob/master/icons/docker/docker-original.svg" title="docker" alt="docker" width="15" height="15"/>
+    <strong>Docker:</strong> Containerization for deployment.</li>
+</ul>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+<h2>🚀 Installation</h2>
 
-## Description
+<h3>🔹 Clone the Repository</h3>
+<pre><code>
+$ git clone https://github.com/akhiljith77/Stinger-service.git
+$ cd Stinger-service
+</code></pre>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
+<h3>🔹 Install Dependencies</h3>
+<pre><code>
 $ npm install
-```
+</code></pre>
 
-## Compile and run the project
+<h2>📂 Authentication Module</h2>
+<p>
+  The Authentication module handles user authentication. It generates JWT tokens for session management 
+  and securely stores user details in PostgreSQL
+</p>
 
-```bash
-# development
-$ npm run start
 
-# watch mode
+<h2>📄 API Endpoints</h2>
+
+<h3>21️⃣ User Registration</h3>
+<p><strong>🔹 Endpoint:</strong> <code>POST /users</code></p>
+<p><strong>🔹 Description:</strong> Handles user registration and save the details in database.</p>
+<h3>🔹 Request Body</h3>
+<pre><code>
+{
+    "name":"John Honai",
+    "email":"johnhonai@gmail.com",
+    "password":"andrew'spetti"
+}
+</code></pre>
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+{
+  message:"user registered successfully"
+}
+</code></pre>
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "statusCode": 401,
+    "message": "User already exist",
+    "error": "UnauthorizedException"
+}
+</code></pre>
+
+<h3>2️⃣ User Login</h3>
+<p><strong>🔹 Endpoint:</strong> <code>POST /users/login</code></p>
+<p><strong>🔹 Description:</strong> Handles user login.</p>
+<h3>🔹 Request Body</h3>
+<pre><code>
+{
+    "email":"johnhonai@gmail.com",
+    "password":"andrew'scase"
+}
+</code></pre>
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+{
+    "message": "User login Successfully",
+    "token": "eyJ*****fPs"
+}
+</code></pre>
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "response": {
+        "message": "Invalid credentials",
+        "error": "Unauthorized",
+        "statusCode": 401
+    },
+}
+</code></pre>
+
+<h3>3️⃣ Forgot Password</h3>
+<p><strong>🔹 Endpoint:</strong> <code>POST /users/forgot-password</code></p>
+<p><strong>🔹 Description:</strong> If you forgot your password, you can given the registered email and get the reset password link.</p>
+<h3>🔹 Request Body</h3>
+<pre><code>
+{
+    "email":"johnhonai@gmail.com"
+}
+</code></pre>
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+{
+    "message": "Password reset link sent to email",
+    "link": "http://localhost:5173/reset-password/eyJ*****fPs"
+}
+</code></pre>
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "response": {
+        "message": "Invalid credentials",
+        "error": "Unauthorized",
+        "statusCode": 401
+    },
+}
+</code></pre>
+
+<h3>4️⃣ Reset Password</h3>
+<p><strong>🔹 Endpoint:</strong> <code>PATCH /users/reset-password/:token</code></p>
+<p><strong>🔹 Description:</strong> you can access this link to reset the password</p>
+<h3>🔹 Request Body</h3>
+<pre><code>
+{
+    "password":"ammachi'spetti"
+}
+</code></pre>
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+{
+    "message": "Password successfully reset"
+}
+</code></pre>
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "statusCode": 401,
+    "message": "Invalid token or expired token",
+    "error": "UnauthorizedException"
+}
+</code></pre>
+
+<br/>
+
+<h2>📂 Product Module</h2>
+
+<p>
+  This is the product module where you can create new products, list all products and based on filters like search product, price range, caterogy wise. Can get single product details, update product, delete product
+</p>
+
+
+<h2>📄 Create Product API</h2>
+
+<h3>🔹 Endpoint</h3>
+<p><code>POST /products</code></p>
+
+<h3>🔹 Description</h3>
+<p>
+  Here you can create a new product by giving details like name, description, price, category, color, image.
+</p>
+
+<h3>🔹 Request Body</h3>
+<pre><code>
+{
+            "name": "EYEBOGLER",
+            "description": "Men Shirt with Spread Collar",
+            "price": 390,
+            "color": "Navy",
+            "size": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "2XL"
+            ],
+            "stock": 30,
+            "categoryId": "c1*********************c",
+            "imageURL": "https://assets.*****.jpg"
+        },
+</code></pre>
+
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+{
+  "message":"Product created successfully"
+}
+</code></pre>
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "statusCode": 400,
+    "message": "name must be a string", //missing data will be displayed
+    "error": "BadRequestException"
+}
+</code></pre>
+
+<h2>📄 List Product API</h2>
+
+<h3>🔹 Endpoint</h3>
+<p><code>GET /products?query</code></p>
+
+<h3>🔹 Description</h3>
+<p>
+   This API allows users to list all products. can give filters. Should give login token to access the api,
+</p>
+<pre><code>
+Authorization: Bearer $token
+</code></pre>
+
+<h3>🔹 Queries</h3>
+<pre><code>
+search: Get product based on keyword
+minPrice: Get product based on minimum price
+maxPrice: Get product based on maximum price
+</code></pre>
+
+<p><strong>🔹Success Response 🟢</strong></p>
+<pre><code>
+[
+  {
+        "id": "2e*****************a3",
+        "name": "EYEBOGLER",
+        "description": "Men Shirt with Spread Collar",
+        "price": 390,
+       ...data
+  },
+  {
+        ...data
+  },
+]
+</code></pre>
+
+<p><strong>🔹Error Response 🔴</strong></p>
+<pre><code>
+{
+    "response": "Products not found",
+    "status": 404,
+    "message": "Products not found",
+    "name": "HttpException"
+}
+</code></pre>
+
+
+
+<h2>🛠️ Environment Variables</h2>
+<p>Create a <code>.env</code> file and configure:</p>
+<pre><code>
+HOST=your_host
+DBPORT=your_port
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+DATABASE=your_database_name
+WT_SECRET=your_secret
+REDIS_HOST=your_redis_host
+REDIS_PORT=your_redis_port
+</code></pre>
+
+<h2>💻 Running the Application</h2>
+<pre><code>
+# Start the server in development mode
 $ npm run start:dev
+</code></pre>
 
-# production mode
-$ npm run start:prod
-```
+<h2>🐳 Running with Docker</h2>
+<p>If you want to run the application inside a Docker container:</p>
+<pre><code>
+# Build the Docker image
+$ docker build -t stinger-service.
 
-## Run tests
+# Run the container
+$ docker run -p 5000:5000 --env-file .env stinger-service
 
-```bash
-# unit tests
-$ npm run test
+<h2>🧪 Testing the Deployed API</h2>
+<p>
+  The API is currently deployed on Amazon EC2 and database on RDS
+</p>
+</code></pre>
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
