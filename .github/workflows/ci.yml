@@ -43,7 +43,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/Stinger-Service
+            cd /home/ubuntu/stinger-service
             git pull origin master
             npm install
             npm run build
