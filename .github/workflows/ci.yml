@@ -39,31 +39,12 @@ jobs:
       - name: Deploy to Server 
         uses: appleboy/ssh-action@master
         with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          # Install Node.js
-          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-      
-          # Verify Node.js installation
-          node -v
-          npm -v
-      
-          # Install PM2 globally
-          sudo npm install -g pm2
-      
-          # Clone the repository if it doesn't exist, otherwise pull the latest changes
-          if [ ! -d "/home/ubuntu/Stinger-service" ]; then
-            git clone https://github.com/akhiljith77/Stinger-service.git /home/ubuntu/Stinger-service
-          else
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
             cd /home/ubuntu/Stinger-service
             git pull origin master
-          fi
-      
-          # Build and start the application
-          cd /home/ubuntu/Stinger-service
-          npm install
-          npm run build
-          pm2 restart Stinger-service || pm2 start dist/main.js --name "Stinger-service"     
+            npm install
+            npm run build
+            pm2 start dist/main.js --name "Stinger-service"          
