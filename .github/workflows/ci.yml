@@ -24,6 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env file
+        run: |
+          echo "HOST=${{ secrets.DB_ENDPOINT }}" >> .env
+          echo "DBPORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DATABASE=${{ secrets.DB_DATABASE }}" >> .env 
+
       # - name: Run tests
       #   run: npm run test
 
