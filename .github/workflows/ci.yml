@@ -55,4 +55,6 @@ jobs:
             git pull origin master
             npm install
             npm run build
-            pm2 start dist/main.js --name "Stinger-service"          
+            pm2 stop Stinger-service 2>/dev/null || true
+            pm2 delete Stinger-service 2>/dev/null || true
+            pm2 start dist/main.js --name "Stinger-service"      
