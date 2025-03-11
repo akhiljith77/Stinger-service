@@ -13,7 +13,7 @@ import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,PasswordToken]),
+    TypeOrmModule.forFeature([User, PasswordToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

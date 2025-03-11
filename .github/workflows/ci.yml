@@ -1,0 +1,50 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      # - name: Run tests
+      #   run: npm run test
+
+      # - name: Create .env file
+      #   run: |
+      #     echo "POSTGRESQL_HOST=${{ secrets.HOST }}" >> .env
+      #     echo "POSTGRESQL_DBPORT=${{ secrets.DBPORT }}" >> .env
+      #     echo "POSTGRESQL_DB_USERNAME=${{ secrets.GOOGLE_REDIDB_USERNAMERECT_URL }}" >> .env
+      #     echo "POSTGRESQL_DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+      #     echo "POSTGRESQL_DATABASE=${{ secrets.DATABASE }}" >> .env
+      #     echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+      - name: Deploy to Server 
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/Stinger-Service
+            git pull origin master
+            npm install
+            npm run build
+            pm2 start dist/main.js --name "stinger-service"          

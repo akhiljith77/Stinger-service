@@ -8,9 +8,9 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://localhost:5173'],
-    methods: ['GET', 'POST','PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+    origin: ['http://localhost:5173', 'http://192.168.1.4:5173'],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
