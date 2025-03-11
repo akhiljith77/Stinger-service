@@ -1,15 +1,11 @@
 import {
-  isEmail,
   IsEmail,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  isString,
   IsString,
-  MaxLength,
   MinLength,
 } from 'class-validator';
-import { EphemeralKeyInfo } from 'tls';
 
 export class CreateUserDto {
   @IsString()

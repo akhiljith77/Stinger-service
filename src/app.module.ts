@@ -11,18 +11,28 @@ import { JwtModule } from '@nestjs/jwt';
 import { EmailServiceModule } from './email-service/email-service.module';
 import { ProductsModule } from './products/products.module';
 import { Products } from './products/entities/product.entity';
-
+import { RedisModule } from './redis/redis.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CategoryModule } from './category/category.module';
+import { Category } from './category/entities/category.entity';
+import { CartModule } from './cart/cart.module';
+import { Cart } from './cart/entities/cart.entity';
+import { OrderModule } from './order/order.module';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order/entities/order.item.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // This loads your .env file
+    ConfigModule.forRoot(),
     JwtModule.registerAsync({
+      global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
       }),
       inject: [ConfigService],
     }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,7 +43,15 @@ import { Products } from './products/entities/product.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DATABASE'),
-        entities: [User,PasswordToken,Products],
+        entities: [
+          User,
+          PasswordToken,
+          Products,
+          Category,
+          Cart,
+          Order,
+          OrderItem,
+        ],
         synchronize: true,
       }),
     }),
@@ -41,6 +59,11 @@ import { Products } from './products/entities/product.entity';
     PasswordTokenModule,
     EmailServiceModule,
     ProductsModule,
+    RedisModule,
+    CategoryModule,
+    CartModule,
+    OrderModule,
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
