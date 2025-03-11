@@ -31,6 +31,7 @@ jobs:
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DATABASE=${{ secrets.DB_DATABASE }}" >> .env 
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env 
 
       # - name: Run tests
       #   run: npm run test
@@ -55,6 +56,14 @@ jobs:
             git pull origin master
             npm install
             npm run build
+
+            echo "HOST=${{ secrets.DB_ENDPOINT }}" >> .env
+            echo "DBPORT=${{ secrets.DB_PORT }}" >> .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DATABASE=${{ secrets.DB_DATABASE }}" >> .env 
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env 
+
             pm2 stop Stinger-service 2>/dev/null || true
             pm2 delete Stinger-service 2>/dev/null || true
             pm2 start dist/main.js --name "Stinger-service"      
