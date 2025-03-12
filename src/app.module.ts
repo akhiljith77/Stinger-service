@@ -43,7 +43,9 @@ import { OrderItem } from './order/entities/order.item.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DATABASE'),
-        ssl: true,
+        ssl: {
+          rejectUnauthorized: false 
+        },
         entities: [
           User,
           PasswordToken,
