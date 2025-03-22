@@ -135,7 +135,6 @@ export class OrderService {
       }
       return orders;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }

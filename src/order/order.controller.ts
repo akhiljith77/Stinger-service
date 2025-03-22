@@ -27,8 +27,8 @@ export class OrderController {
 
   @Get()
   @UseGuards(AuthGuard)
-  findAll(@Query('userId') userId?: string) {
-    return this.orderService.findAll(userId);
+  findAll(@Request() req: any) {
+    return this.orderService.findAll(req?.user?.id);
   }
 
   @Get(':id')

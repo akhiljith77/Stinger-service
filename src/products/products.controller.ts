@@ -10,25 +10,50 @@ import {
   UsePipes,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto, FilterProductsDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { RolesGuard } from 'src/guard/role.guard';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @UseGuards(AuthGuard, RolesGuard)
+  @UseInterceptors(FilesInterceptor('imageURLs', 8))
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() files: Express.Multer.File[]) {
+
+
+    if (typeof createProductDto.color === 'string') {
+      try {
+        createProductDto.color = JSON.parse(createProductDto.color);
+      } catch (e) {
+        console.error('Error parsing color:', e);
+      }
+    }
+
+    if (typeof createProductDto.size === 'string') {
+      try {
+        createProductDto.size = JSON.parse(createProductDto.size);
+      } catch (e) {
+        console.error('Error parsing size:', e);
+      }
+    }
+    return this.productsService.create(createProductDto, files);
   }
 
   @Get()
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   findAll(@Query() filterDto: FilterProductsDto) {
     return this.productsService.findAll(filterDto);
   }
@@ -39,11 +64,13 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
     return this.productsService.delete(id);
   }

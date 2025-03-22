@@ -75,6 +75,7 @@ export class UsersService {
       return {
         message: 'User login Successfully',
         token: token,
+        userRole: userExist?.role
       };
     } catch (error) {
       throw error;

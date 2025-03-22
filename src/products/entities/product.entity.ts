@@ -64,6 +64,6 @@ export class Products {
   @Column('uuid')
   categoryId: string;
 
-  @Column({ nullable: true })
-  imageURL: string;
+  @Column({ type: 'text', array: true, default: [], nullable: true })
+  imageURLs: string[];
 }

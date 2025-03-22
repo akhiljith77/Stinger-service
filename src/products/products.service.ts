@@ -8,23 +8,50 @@ import {
 import { CreateProductDto, FilterProductsDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Products } from './entities/product.entity';
+import { Products, Size } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { S3Service } from 'src/common/services/s3.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Products)
     private readonly productConnection: Repository<Products>,
+    private readonly s3Service: S3Service,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
-  create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto,files?: Express.Multer.File[]) {
+    
     try {
-      return this.productConnection.save(createProductDto);
+      let imageURLs: string[] = [];
+      
+      if (files && files.length > 0) {
+        const uploadPromises = files.map(async (file)=>{
+          const fileName = `products/${Date.now()}-${file.originalname}`;
+          return this.s3Service.uploadFile(file,fileName)
+        });        
+        imageURLs = await Promise.all(uploadPromises);
+      }
+
+      const validSizes: Size[] = createProductDto.size
+        .filter(sizeStr => Object.values(Size).includes(sizeStr as Size))
+        .map(sizeStr => sizeStr as Size);
+
+        const product = this.productConnection.create({
+          name: createProductDto.name,
+          description: createProductDto.description, 
+          price: createProductDto.price,
+          stock: createProductDto.stock,
+          color: createProductDto.color,
+          size: validSizes,
+          categoryId: createProductDto.categoryId,
+          imageURLs,
+        });
+
+      return await this.productConnection.save(product);
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }

@@ -35,7 +35,6 @@ export class CartService {
       return 'Product added to Cart';
     } catch (error) {
       throw error;
-      // console.log(error);
     }
   }
 

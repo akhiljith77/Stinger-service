@@ -23,7 +23,10 @@ import { OrderItem } from './order/entities/order.item.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true, 
+      envFilePath: '.env',
+    }),
     JwtModule.registerAsync({
       global: true,
       imports: [ConfigModule],
@@ -43,9 +46,9 @@ import { OrderItem } from './order/entities/order.item.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DATABASE'),
-        ssl: {
-          rejectUnauthorized: false 
-        },
+        // ssl: {
+        //   rejectUnauthorized: false   
+        // },
         entities: [
           User,
           PasswordToken,
