@@ -54,6 +54,7 @@ export class UsersService {
       });
 
       this.userConnection.save(newUser);
+      await this.cacheManager.del(this.userCacheKey)
 
       return {
         success: true,
@@ -152,6 +153,7 @@ export class UsersService {
         throw new UnauthorizedException("User Dosn't exist");
       }
       this.userConnection.delete(UserId);
+      await this.cacheManager.del(this.userCacheKey)
       return {
         success: true,
         message: 'User Deleted Successfully'
