@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -68,17 +69,21 @@ export class UsersService {
         userExist.password,
       );
       if (!isPasswordMatch) {
-        return new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
       const expireIn: string = '7d';
       const token: string = this.generateToken(userExist, expireIn);
       return {
+        success:true,
         message: 'User login Successfully',
         token: token,
         userRole: userExist?.role
       };
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
 
