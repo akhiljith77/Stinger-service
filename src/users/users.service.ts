@@ -34,35 +34,47 @@ export class UsersService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
 
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(userdata: CreateUserDto): Promise<string> {
+  async register(userdata: CreateUserDto): Promise<any> {
     try {
       const userExist: User = await this.userConnection.findOne({
         where: { email: userdata.email },
       });
+
       if (userExist) {
         throw new UnauthorizedException('User already exist');
       }
+
       const salt: string = await bcrypt.genSalt(10);
       const hashedPassword: string = await bcrypt.hash(userdata.password, salt);
       const newUser: User = this.userConnection.create({
         ...userdata,
         password: hashedPassword,
       });
+
       this.userConnection.save(newUser);
-      return 'user registered successfully';
+
+      return {
+        success: true,
+        message: 'user registered successfully',
+      };
+
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
+
   async login(loginDto: LoginUserDto) {
     try {
       const userExist: User = await this.userConnection.findOne({
         where: { email: loginDto.email },
       });
       if (!userExist) {
-        return new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
       const isPasswordMatch: boolean = await bcrypt.compare(
         loginDto.password,
@@ -73,12 +85,14 @@ export class UsersService {
       }
       const expireIn: string = '7d';
       const token: string = this.generateToken(userExist, expireIn);
+
       return {
-        success:true,
+        success: true,
         message: 'User login Successfully',
         token: token,
         userRole: userExist?.role
       };
+
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -94,14 +108,22 @@ export class UsersService {
       });
 
       if (!userData) {
-        return new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       Object.assign(userData, updateUserDto);
       this.userConnection.save(userData);
-      return 'User update Successful';
+
+      return {
+        success: true,
+        message: 'User update Successful'
+      };
+
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
 
@@ -127,12 +149,18 @@ export class UsersService {
         where: { id: UserId },
       });
       if (!userData) {
-        return new UnauthorizedException("User Dosn't exist");
+        throw new UnauthorizedException("User Dosn't exist");
       }
       this.userConnection.delete(UserId);
-      return 'User Deleted Successfully';
+      return {
+        success: true,
+        message: 'User Deleted Successfully'
+      };
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
 
@@ -143,7 +171,7 @@ export class UsersService {
       });
 
       if (!userExist) {
-        return new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       const expireIn: string = '30m';
@@ -162,7 +190,10 @@ export class UsersService {
         link: resetPasswordLink,
       };
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
 
@@ -197,9 +228,12 @@ export class UsersService {
       passwordReset.isUsed = true;
       await this.tokenRepository.save(passwordReset);
 
-      return { message: 'Password successfully reset' };
+      return { success: true, message: 'Password successfully reset' };
     } catch (error) {
-      throw error;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('An unexpected error occurred during login')
     }
   }
 
