@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -144,6 +145,30 @@ export class UsersService {
       throw error;
     }
   }
+
+  async findOne(id: string): Promise<User> {
+    const user = await this.userConnection.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
+  }
+
+
+  async getProfile(userId:string){
+    const user = await this.findOne(userId);
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phoneNumber || null,
+      address: user.address || null,
+      joinDate: user.createdAt.toISOString().split('T')[0], // Format as YYYY-MM-DD
+    };
+  }
+
+
   async deleteUser(UserId: string) {
     try {
       const userData: User = await this.userConnection.findOne({

@@ -101,12 +101,14 @@ export class CartService {
   async delete(userId: string, id: string) {
     try {
       const product: Cart = await this.cartConnection.findOne({
-        where: { id: id },
+        where:[ { id : id },{product_id:id}],
       });
+      console.log(product,"product in cart")
       if (!product) {
         return new HttpException('Products not found', HttpStatus.NOT_FOUND);
       }
-      this.cartConnection.delete(id);
+    const deletedData =  await this.cartConnection.delete(product.id);
+      console.log(deletedData,"deleted from cart")
       return 'Product Deleted Successfully';
     } catch (error) {
       throw error;

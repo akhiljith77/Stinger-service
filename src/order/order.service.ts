@@ -12,6 +12,7 @@ import { Order, OrderStatus, PaymentStatus } from './entities/order.entity';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { OrderItem } from './entities/order.item.entity';
 import { Products } from 'src/products/entities/product.entity';
+import { CartService } from 'src/cart/cart.service';
 
 @Injectable()
 export class OrderService {
@@ -23,7 +24,8 @@ export class OrderService {
     @InjectRepository(Products)
     private productConnection: Repository<Products>,
     private datasource: DataSource,
-  ) {}
+    private readonly cartService: CartService
+  ) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -106,6 +108,9 @@ export class OrderService {
       await queryRunner.manager.save(savedOrder);
 
       await queryRunner.commitTransaction();
+      for (const item of items) {
+        await this.cartService.delete(userId, item.productId);
+      }
 
       return 'Order placed successfully';
     } catch (error) {
@@ -158,11 +163,12 @@ export class OrderService {
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     try {
+      console.log(id, updateOrderDto)
       const order = await this.orderConnection.findOne({
-        where: { id: id },
+        where: { id },
         relations: ['orderItems', 'orderItems.product'],
       });
-
+      console.log(order, "order")
       if (!order) {
         throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
       }
@@ -176,6 +182,7 @@ export class OrderService {
       }
 
       await this.orderConnection.save(order);
+      console.log("updated successfully")
       return 'Updated Successfully';
     } catch (error) {
       throw error;

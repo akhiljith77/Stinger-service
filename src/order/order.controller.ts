@@ -43,7 +43,7 @@ export class OrderController {
     return this.orderService.update(id, updateOrderDto);
   }
 
-  @Delete(':id/cancel')
+  @Delete('cancel/:id')
   @UseGuards(AuthGuard)
   cancelOrder(@Param('id') id: string) {
     return this.orderService.cancelOrder(id);
