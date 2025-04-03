@@ -106,5 +106,5 @@ export class FilterProductsDto {
   @Type(() => Number)
   @Min(1)
   @Max(100)
-  limit?: number = 5;
+  limit?: number = 10;
 }

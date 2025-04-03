@@ -55,6 +55,7 @@ export class ProductsController {
   @Get()
   @UseGuards(AuthGuard)
   findAll(@Query() filterDto: FilterProductsDto) {
+    console.log(filterDto,"filterDto")
     return this.productsService.findAll(filterDto);
   }
 

@@ -21,17 +21,17 @@ export class ProductsService {
     private readonly productConnection: Repository<Products>,
     private readonly s3Service: S3Service,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
-  async create(createProductDto: CreateProductDto,files?: Express.Multer.File[]) {
-    
+  ) { }
+  async create(createProductDto: CreateProductDto, files?: Express.Multer.File[]) {
+
     try {
       let imageURLs: string[] = [];
-      
+
       if (files && files.length > 0) {
-        const uploadPromises = files.map(async (file)=>{
+        const uploadPromises = files.map(async (file) => {
           const fileName = `products/${Date.now()}-${file.originalname}`;
-          return this.s3Service.uploadFile(file,fileName)
-        });        
+          return this.s3Service.uploadFile(file, fileName)
+        });
         imageURLs = await Promise.all(uploadPromises);
       }
 
@@ -39,16 +39,16 @@ export class ProductsService {
         .filter(sizeStr => Object.values(Size).includes(sizeStr as Size))
         .map(sizeStr => sizeStr as Size);
 
-        const product = this.productConnection.create({
-          name: createProductDto.name,
-          description: createProductDto.description, 
-          price: createProductDto.price,
-          stock: createProductDto.stock,
-          color: createProductDto.color,
-          size: validSizes,
-          categoryId: createProductDto.categoryId,
-          imageURLs,
-        });
+      const product = this.productConnection.create({
+        name: createProductDto.name,
+        description: createProductDto.description,
+        price: createProductDto.price,
+        stock: createProductDto.stock,
+        color: createProductDto.color,
+        size: validSizes,
+        categoryId: createProductDto.categoryId,
+        imageURLs,
+      });
 
       return await this.productConnection.save(product);
     } catch (error) {
@@ -63,18 +63,19 @@ export class ProductsService {
         category,
         maxPrice,
         minPrice,
-        limit = 5,
+        limit = 10,
         page = 1,
       } = filterDto;
 
-      const productCacheKey = `product-key:search=${search || ''}&category=${category || ''}&minPrice=${minPrice || ''}&maxPrice=${maxPrice || ''}&page=${page}&limit=${limit}`;
+      // const productCacheKey = `product-key:search=${search || ''}&category=${category || ''}&minPrice=${minPrice || ''}&maxPrice=${maxPrice || ''}&page=${page}&limit=${limit}`;
 
-      const cachedProducts: any = await this.cacheManager.get(productCacheKey);
+      // const cachedProducts: any = await this.cacheManager.get(productCacheKey);
 
-      if (cachedProducts) {
-        return cachedProducts;
-      }
+      // if (cachedProducts) {
+      //   return cachedProducts;
+      // }
 
+      console.log(category, search, minPrice, maxPrice, limit,page,"category")
       const queryBuilder =
         this.productConnection.createQueryBuilder('products');
       queryBuilder.leftJoinAndSelect('products.category', 'category');
@@ -118,6 +119,9 @@ export class ProductsService {
         .skip((page - 1) * limit)
         .take(limit)
         .getMany();
+        
+
+        console.log(products,"productsss")
 
       if (products.length < 1) {
         throw new NotFoundException('Products not found');
@@ -131,7 +135,7 @@ export class ProductsService {
         products,
       };
 
-      await this.cacheManager.set(productCacheKey, responseData); // Cache for 5 minutes
+      // await this.cacheManager.set(productCacheKey, responseData); // Cache for 5 minutes
       return responseData;
     } catch (error) {
       throw error;
