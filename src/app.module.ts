@@ -50,9 +50,9 @@ import { MetricsMiddleware } from './monitoring/metrics.middleware';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DATABASE'),
-        // ssl: {
-        //   rejectUnauthorized: false   
-        // },
+        ssl: {
+          rejectUnauthorized: false   
+        },
         entities: [
           User,
           PasswordToken,
