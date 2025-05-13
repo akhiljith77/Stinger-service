@@ -56,11 +56,24 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/Stinger-service
+            # Install Node.js and PM2 if not already installed
+            command -v node >/dev/null 2>&1 || curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs
+            command -v pm2 >/dev/null 2>&1 || sudo npm install -g pm2
+
+            cd /home/ubuntu
+
+            # Clone the repo if not present
+            if [ ! -d "Stinger-service/.git" ]; then
+            git clone https://github.com/akhiljith77/Stinger-service.git
+            fi
+
+            cd Stinger-service
             git pull origin master
+
             npm install
             npm run build
 
+            # Create .env file
             rm -f .env
             echo "HOST=${{ secrets.DB_ENDPOINT }}" > .env
             echo "DBPORT=${{ secrets.DB_PORT }}" >> .env
@@ -73,6 +86,7 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
             echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
 
+            # Restart app using PM2
             pm2 stop Stinger-service 2>/dev/null || true
             pm2 delete Stinger-service 2>/dev/null || true
             pm2 start dist/main.js --name "Stinger-service"      
