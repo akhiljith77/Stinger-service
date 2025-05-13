@@ -52,6 +52,7 @@ export class ProductsService {
 
       return await this.productConnection.save(product);
     } catch (error) {
+      console.log(error,"logs")
       throw error;
     }
   }
@@ -75,7 +76,6 @@ export class ProductsService {
       //   return cachedProducts;
       // }
 
-      console.log(category, search, minPrice, maxPrice, limit,page,"category")
       const queryBuilder =
         this.productConnection.createQueryBuilder('products');
       queryBuilder.leftJoinAndSelect('products.category', 'category');
@@ -120,8 +120,6 @@ export class ProductsService {
         .take(limit)
         .getMany();
         
-
-        console.log(products,"productsss")
 
       if (products.length < 1) {
         throw new NotFoundException('Products not found');

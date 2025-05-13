@@ -25,6 +25,12 @@ export class User {
   @Column({ default: Role.USER })
   role: Role;
 
+  @Column({ default: 'local' }) // 'local' for email/password, 'google' for Google users
+  provider: string;
+
+  @Column({ nullable: true })
+  profileImage: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

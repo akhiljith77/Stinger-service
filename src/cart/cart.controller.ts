@@ -12,7 +12,7 @@ import {
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { CustomAuthGuard  } from 'src/guard/auth.guard';
 import { Cart } from './entities/cart.entity';
 
 @Controller('cart')
@@ -20,7 +20,7 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(CustomAuthGuard)
   create(
     @Body() createCartDto: CreateCartDto,
     @Request() req: any,
@@ -29,19 +29,19 @@ export class CartController {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(CustomAuthGuard)
   findAll(@Request() req: any): Promise<{ data: Cart[]; total: number }> {
     return this.cartService.findAll(req?.user?.id);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(CustomAuthGuard)
   findOne(@Request() req: any, @Param('id') id: string) {
     return this.cartService.findOne(req?.user?.id, id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(CustomAuthGuard)
   update(
     @Request() req: any,
     @Param('id') id: string,
@@ -51,7 +51,7 @@ export class CartController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(CustomAuthGuard)
   remove(@Request() req: any, @Param('id') id: string) {
     return this.cartService.delete(req?.user?.id, id);
   }

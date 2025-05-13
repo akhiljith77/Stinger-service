@@ -103,6 +103,40 @@ export class UsersService {
     }
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userConnection.findOne({ where: { email } });
+  }
+
+  async createGoogleUser(userData: { email: string; name: string; profileImage: string }) {
+    const newUser = this.userConnection.create({
+      email: userData.email,
+      name: userData.name,
+      profileImage: userData.profileImage,
+      password: null, // No password for Google users
+      provider: 'google',
+    });
+
+    await this.userConnection.save(newUser);
+    return newUser;
+  }
+
+  async googleLogin(user: any) {
+    
+    try {
+      const token = this.generateToken(user, '7d');
+      return {
+        success: true,
+        message: 'Google login successful',
+        token,
+        user,
+      };
+    } catch (error) {
+      console.error('Error in googleLogin:', error);
+      throw new InternalServerErrorException('Failed to generate token for Google login');
+    }
+  }
+
+
   async update(updateUserDto: UpdateUserDto, UserId: string) {
     try {
       const userData: User = await this.userConnection.findOne({
@@ -155,7 +189,7 @@ export class UsersService {
   }
 
 
-  async getProfile(userId:string){
+  async getProfile(userId: string) {
     const user = await this.findOne(userId);
 
     return {

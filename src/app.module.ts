@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -20,11 +20,15 @@ import { Cart } from './cart/entities/cart.entity';
 import { OrderModule } from './order/order.module';
 import { Order } from './order/entities/order.entity';
 import { OrderItem } from './order/entities/order.item.entity';
+import { AppPrometheusModule } from './monitoring/prometheus.module';
+import { MetricsService } from './monitoring/metrics.service';
+import { makeCounterProvider } from '@willsoto/nestjs-prometheus';
+import { MetricsMiddleware } from './monitoring/metrics.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
       envFilePath: '.env',
     }),
     JwtModule.registerAsync({
@@ -70,8 +74,17 @@ import { OrderItem } from './order/entities/order.item.entity';
     CartModule,
     OrderModule,
     CacheModule.register({ isGlobal: true }),
+    AppPrometheusModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MetricsService, makeCounterProvider({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'path', 'status'],
+  }),],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MetricsMiddleware).forRoutes('*');
+  }
+}
