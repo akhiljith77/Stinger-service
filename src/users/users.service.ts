@@ -37,7 +37,7 @@ export class UsersService {
     private jwtService: JwtService,
   ) { }
 
-  async register(userdata: any): Promise<any> {
+  async register(userdata: CreateUserDto): Promise<any> {
     try {
       const userExist: User = await this.userConnection.findOne({
         where: { email: userdata.email },
@@ -49,7 +49,7 @@ export class UsersService {
 
       const salt: string = await bcrypt.genSalt(10);
       const hashedPassword: string = await bcrypt.hash(userdata.password, salt);
-      const newUser: any = this.userConnection.create({
+      const newUser: User = this.userConnection.create({
         ...userdata,
         password: hashedPassword,
       });
