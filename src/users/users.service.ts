@@ -37,6 +37,7 @@ export class UsersService {
     private jwtService: JwtService,
   ) { }
 
+
   async register(userdata: CreateUserDto): Promise<any> {
     try {
       const userExist: User = await this.userConnection.findOne({
@@ -72,19 +73,43 @@ export class UsersService {
 
   async login(loginDto: LoginUserDto) {
     try {
+      const now = new Date();
       const userExist: User = await this.userConnection.findOne({
         where: { email: loginDto.email },
       });
+
       if (!userExist) {
         throw new UnauthorizedException('Invalid credentials');
       }
+
+      if (
+        userExist.loginAttempts > 5 &&
+        userExist.lastFailedLogin &&
+        now.getTime() - new Date(userExist.lastFailedLogin).getTime() < 30000
+      ) {
+        throw new UnauthorizedException(
+          `Too many failed attempts. Try again after ${30 - Math.floor((now.getTime() - new Date(userExist.lastFailedLogin).getTime()) / 1000)
+          } seconds`
+        );
+      }
+
       const isPasswordMatch: boolean = await bcrypt.compare(
         loginDto.password,
         userExist.password,
       );
+
       if (!isPasswordMatch) {
+        userExist.loginAttempts = (userExist.loginAttempts || 0) + 1;
+        userExist.lastFailedLogin = now;
+        await this.userConnection.save(userExist);
+
         throw new UnauthorizedException('Invalid credentials');
       }
+
+      userExist.loginAttempts = 0;
+      userExist.lastFailedLogin = null;
+      await this.userConnection.save(userExist);
+
       const expireIn: string = '7d';
       const token: string = this.generateToken(userExist, expireIn);
 
@@ -121,7 +146,7 @@ export class UsersService {
   }
 
   async googleLogin(user: any) {
-    
+
     try {
       const token = this.generateToken(user, '7d');
       return {

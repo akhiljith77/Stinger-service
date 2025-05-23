@@ -19,7 +19,7 @@ export class User {
   @Column({ nullable: true, unique: true })
   phoneNumber: string;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   address: string;
 
   @Column({ default: Role.USER })
@@ -30,6 +30,12 @@ export class User {
 
   @Column({ nullable: true })
   profileImage: string;
+
+  @Column({ default: 0 })
+  loginAttempts: number
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastFailedLogin: Date;
 
   @CreateDateColumn()
   createdAt: Date;
