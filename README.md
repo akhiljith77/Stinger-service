@@ -6,7 +6,11 @@
 
 <h2>📌 Description</h2>
 <p>
-  The Stinger is our new product. It is an ecommerce platform where you can buy cloths, shoes and other accessories. Stinger is under construction ⚒
+  The Stinger is our new product. It is an ecommerce platform where you can buy clothes, shoes, and other accessories.
+  <br/>
+  🔗 <strong>Live Site:</strong> <a href="http://stinger-web.s3-website.eu-north-1.amazonaws.com/" target="_blank">stinger-web.s3-website.eu-north-1.amazonaws.com</a>
+  <br/>
+  ⚒ Stinger is under construction
 </p>
 
 <h2>🛠️ Technologies Used</h2>
