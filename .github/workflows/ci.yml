@@ -63,11 +63,11 @@ jobs:
             cd /home/ubuntu
 
             # Clone the repo if not present
-            if [ ! -d "Stinger-service/.git" ]; then
-            git clone https://github.com/akhiljith77/Stinger-service.git
+            if [ ! -d "Stinger-Backend/.git" ]; then
+            git clone https://github.com/Hiran-2001/Stinger-Backend.git
             fi
 
-            cd Stinger-service
+            cd Stinger-Backend
             git pull origin master
 
             npm install
@@ -87,6 +87,6 @@ jobs:
             echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
 
             # Restart app using PM2
-            pm2 stop Stinger-service 2>/dev/null || true
-            pm2 delete Stinger-service 2>/dev/null || true
-            pm2 start dist/main.js --name "Stinger-service"      
+            pm2 stop Stinger-Backend 2>/dev/null || true
+            pm2 delete Stinger-Backend 2>/dev/null || true
+            pm2 start dist/main.js --name "Stinger-Backend"      
